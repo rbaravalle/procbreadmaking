@@ -202,11 +202,11 @@ The following equation models heat transfer in bread dough, accounting for energ
 where $T$ is temperature, $x$ is the radial coordinate, $C_{p}$ is the specific heat, $\rho$ is density, $k$ is thermal conductivity, $\lambda$ is the latent heat of evaporation of water, and $W(x;t)$ is the liquid water content. The initial conditions,
 %
 \begin{align}
-\left ( \frac{\partial T}{\partial x} \right )_{x=L/2} &= 0 , t > 0 \\
 T(x,0) &= T_{0}(x), 0\le x \le L/2
 \end{align}
 and the boundary conditions define the model:
 \begin{align}
+\left ( \frac{\partial T}{\partial x} \right )_{x=L/2} &= 0 , t > 0 \\
 -k \left ( \frac{\partial T}{\partial x} \right )_{x=0} &= h_{r}(T_{r}-T_{s}) + h_{c}(T_{air}-T_{s}) - \lambda \rho D_{w} \left (\frac{\partial W}{\partial x} \right )_{x=0}
 \end{align}
 %
@@ -230,11 +230,11 @@ T_{new}(x,y) &= T_{orig}(u,v).
 %====================================================================
 \subsection{Multifractal theory}
 
-Fractal Dimensions (FD) measure key image features in narrow representations. Different FDs capture different features, {\em e.g.}, porosity, rugosity, etc. Studies shows fractal bread characterisations using several FDs \cite{Gonzales2008,Baravalle2012}. 
+Fractal Dimensions (FD) measure key image features using few values. Different FDs capture different features, {\em e.g.}, porosity, rugosity, etc. Studies shows fractal bread characterisations using several FDs \cite{Gonzales2008,Baravalle2012}. 
 
 Literature shows different representations for the multifractal spectrum. These representations provide identical information and differ only for a Legendre transformation. There are two main classes of multifractal spectra: generalised multifractal dimensions ($D_{q}$) and Lipschitz-H\"older exponents ($f(\alpha)$). The latter representation boosts the performance in classification tasks.
 
-Studies compute generalised multifractal dimensions  in several ways. The Sandbox multifractal method \cite{Tel1989} aims to compute the dimensions using the meaning value in a set of randomly distributed points belonging to the structure \cite{Debartolo2004}. The author defines the sandbox multifractal dimension of order q as:
+Studies compute generalised multifractal dimensions in several ways. The Sandbox multifractal method \cite{Tel1989} aims to compute the dimensions using the meaning value in a set of randomly distributed points belonging to the structure \cite{Debartolo2004}. The author defines the sandbox multifractal dimension of order q as:
 
  \begin{align}
 D_{q\ne 1}^{sb} &= \frac{1}{q-1} \lim_{R \rightarrow 0}{
@@ -262,7 +262,7 @@ D_{q=1}^{sb} &= \lim_{R \rightarrow 0}{
 
 %The MFS and the sanbox spectrum are related via a Legendre Transform. We can compute the MFS using the Legendre transform of the sandbox spectrum or we can compute it directly from the underlying structure. The latter gives better classification performance. In our experiments, we use the latter approach to compute the MFS for reañ and rendered bread images, and 
 
-We apply the sandbox approach to characterise real and synthetic bread binarisations.
+In the validation section, we will apply the sandbox approach to characterise real and synthetic bread binarisations.
 
 Next section introduces our algorithm for procedural bread making.
 
@@ -332,10 +332,10 @@ i, j &\in [-\frac{N_{im}}{2},\frac{N_{im}}{2}],
 We compute a vector field $[g_{x},g_{y}]$ from the image gradient \cite{Gonzalez2006}, and we use it to warp the volume texture in the following way:
 
 \begin{align}
-u = x+p*g_{x}[x,y],\\
-v = y+p*g_{y}[x,y],
+\displaystyle u = x+p*dist_{xy}*g_{x}[x,y],\\
+v = y+p*dist_{xy}*g_{y}[x,y],
 \end{align}
-\noindent where $(u,v)$ are the coordinates in the warped image, ($x,y$) are the original image coordinates and $p$ is a real positive valued parameter that denotes field intensity (augmenting its value we control the baking effect on bubbles). Fig.~\ref{FigBakingVectorField} also shows the computed gradient.
+\noindent where $(u,v)$ are the coordinates in the warped image, ($x,y$) are the original image coordinates, $p$ is a real positive valued parameter that denotes field intensity (it controls the baking effect on bubbles), and $dist_{xy}$ is the euclidean distance from $(x,y)$ to the bread center ($\sqrt((x-N_{x}/2)^{2}+(y-N_{y}/2)^{2})$). The distance to the center parameter is useful to enhance different baking intensities over the bread volume. Fig.~\ref{FigBakingVectorField} also shows the computed gradient. In our experiments, we found that $p = 10$ is enough to produce the desired effect on bubbles. The baking procedure reduces the total image size to approximately its half.
 
 
 \begin{figure}
@@ -351,9 +351,11 @@ Since we defined a cilyndrical bread model, we warp each volume texture slice in
 We should mention we tried to interpolate the resulting image instead of the original temperatures vector, but we obtained a softer vector field than expected.
 
 \begin{figure}
+\begin{center}
 \includegraphics[scale=0.8]{baking.png}
-\caption{Volume slice after baking.}
+\caption{Volume slice after baking. Bubbles follow a concentric vector field. }
 \label{FigBaking}
+\end{center}
 \end{figure}
 
 %====================================================================
@@ -368,7 +370,7 @@ Fig.~\ref{FigMVC} shows a warping example using MVC. In that case, $11$ control 
 
 \begin{figure}[!ht]
 \includegraphics[scale=0.65]{warping.png}
-\caption{Image warped using mean value voordinates. The image also shows a real bread image to the left. }
+\caption{Shape and bubbles comparison: real bread (left), image warped using mean value coordinates (right).}
 \label{FigMVC}
 \end{figure}
 
@@ -396,18 +398,20 @@ Direct volume rendering (DVR) \cite{Kruger2003,Levoy1988, Max1995} approximates 
 
 We prefer DVR over other state-of-the-art methods such as Ray Tracing \cite{Whitted1980,Singh2010}, Path Tracing \cite{Lafortune1993} and Photon Mapping \cite{Jensen1996}, since they are computationally expensive and they require a detailed object mesh.
 
-Fig.~\ref{FigRenders} shows DVR-rendered images  of $3D$ volumes we obtained in this work. Images show a realistic bread crumb appearance, suitable for photo-realistic rendering and serious games \cite{Susi2007}. Fig.~\ref{FigRenders2} shows breads with crust. We artificially added the crust to the borders of the bread.
+Fig.~\ref{FigRenders} shows DVR-rendered images  of $3D$ volumes we obtained in this work. Images show a realistic bread crumb appearance, suitable for photo-realistic rendering and serious games \cite{Susi2007}. Fig.~\ref{FigRenders2} shows synthetic breads with crust. We artificially added the crust to the borders of the bread.
 
 \begin{figure}[!ht]
-\includegraphics[scale=0.15]{render2.png}
+\includegraphics[scale=0.25]{render3.eps}
 \caption{DVR synthetic bread crumb renders}
 \label{FigRenders}
 \end{figure}
 
 \begin{figure}[!ht]
-\includegraphics[scale=0.35]{crusts.png}
+\begin{center}
+\includegraphics[scale=0.35]{crusts3.png}
 \caption{DVR synthetic bread crumb renders with crust}
 \label{FigRenders2}
+\end{center}
 \end{figure}
 
 The authors have used physically correct mathematical models constructing a multi-step pipeline in synthetic bread crumb modelling and visualization. 
@@ -417,15 +421,17 @@ Next section validates this model using fractal methods.
 %====================================================================
 \subsection{Model Validation}
 
-We apply the sandbox multifractal method to study the geometry we obtained after the deformation step. This method is best suited for geometrical characterisation than other multifractal approaches.
+We apply the sandbox multifractal method to study the geometry we obtained after the deformation step. This method is best suited for geometrical measurements than other multifractal approaches.
 
-We apply the sandbox method to $10$ binarised real bread crumb images that we captured with a digital camera and $10$ syhthetic images produced using our pipeline, after the deformation step, obtaining $20$ feature vectors. Then we separate each class and we compute boxplots for the two classes. We manually segmented real bread crumbs to prevent automatic segmentation errors as in \cite{Bosch2011}. The model has $5$ parameters:
+We apply the sandbox method to $10$ binarised real bread crumb images of the {\em baguette} bread type that we captured with a digital scanner and $10$ syhthetic images produced using our pipeline, after the deformation step, obtaining $20$ feature vectors. Then we separate each class and we compute boxplots for the two classes. We manually segmented real bread crumbs to prevent automatic segmentation errors as in \cite{Bosch2011}. The model has $5$ parameters:
 
 
 \begin{align}
 N_{spheres} &= \frac{k}{r^{d}},\\ r &= v_{min}+step*j, j \in [0,\frac{v_{max}}{step}]
 \end{align}
-$k,d,v_{min},v_{max}$ and $step$ that controls bubble's generation in the proving stage. We implemented an automated search in parameter space and we found that the following parameters produce the lowest error:
+$k,d,v_{min},v_{max}$ and $step$ that controls bubble's generation in the proving stage. To compute the sandbox spectrum of each image, we used $5000$ different random points to ensure stability in the resulting spectrum.
+
+We implemented an automated search in parameter space and we found that the following parameters produce the lowest error:
 
 \begin{align*}
 k &= 0.07 \frac{N_{x}\times N_{y}\times N_{z}}{20} ,\\
@@ -434,7 +440,7 @@ v_{min} &=2,\\
 v_{max} &=20.\\
 step &=1,
 \end{align*}
-\noindent where $N_{x}$, $N_{y}$ and $N_{z}$ are the proving volume dimensions in each spatial coordinate. The accumulated error in medians is $\sim 0.21$ meaning a mean error of $0.21/21 \sim 0.01$  in each dimension. We compute this error as:
+\noindent where $N_{x}$, $N_{y}$ and $N_{z}$ are the proving volume dimensions in each spatial coordinate (we chose $(N_{x},N_{y},N_{z}) = (760,760,100)$). The accumulated error in medians is $\sim 0.21$ meaning a mean error of $0.21/21 \sim 0.01$  in each dimension. We compute this error as:
 
 \begin{equation}
 Error = \displaystyle \sum abs(means_{real}-means_{synthetic}).
@@ -448,15 +454,19 @@ Fig.~\ref{bestboxplot} shows boxplots of real and synthetic breads with the medi
 \end{figure}
 
 \begin{figure}[!ht]
+\begin{center}
 \includegraphics[scale=0.2]{realbin.png}
 \caption{ Real bread and binarisation example.}
 \label{realbin}
+\end{center}
 \end{figure}
 
 \begin{figure}[!ht]
-\includegraphics[scale=0.2]{bestwarp.png}
-\caption{Model distribution example showing similar multifractal features to real breads.}
+\begin{center}
+\includegraphics[scale=0.4]{bestwarp.png}
+\caption{Model distribution example showing similar multifractal features to real breads .}
 \label{bestwarp}
+\end{center}
 \end{figure}
 
 
@@ -539,8 +549,8 @@ The original baking model is $1D$. We used the temperatures information  and we 
 
 The baking-deformation inversion we introduced eliminates the necessity of $3D$ baking models, reducing the model complexity and the computing resources consumed. The $2D$ simplification of the kneading step agreed with our cilyndrical model and presented acceptable results in bubble global and local deformations. This  deformation limitation can be extended to $3D$ in a future work. The MVC method performed the deformations intuitively.
 
-We performed a test to validate the model after deformation. The test used the Sanbox method, best suited for geometrical multifractals, and obtained synthetic spectra with low error rates when compared to real spectra.  These results indicates that the bubble's proving model and the baking and deformation stages generate bubble distributions that concordates with real bread crumbs bubbles distribution (amounts and sizes of bubbles). 
-We found higher dispersion in the negative dimensions ($q \ge 0$), since the method better approximates the positive generalised multifractal dimensions. 
+We performed a test to validate the model after deformation. The test used the Sanbox method, best suited for geometrical multifractals, and obtained synthetic spectra with low error rates when compared to real spectra. These results indicates that the bubble's proving model and the baking and deformation stages generate bubble distributions that statistically concordates (under a limited measurement scale) with real bread crumbs bubbles distribution (amount and size of bubbles). 
+We found higher dispersion in the negative dimensions ($q < 0$) since the method approximates more accurately the positive generalised multifractal dimensions. 
 
 %The second test employed the MFS to validate the suitability of the pipeline in a typical rendering system. We also obtained low error rates in classification performance using two different classifiers. The SOM maps of the feature space shows the separability of bread and nonbread images. This indicates our rendering system is producing synthetic images with multifractal features similar to real bread crumbs. We only found a high error rate for synthetic breads (they were classified as synthetic) using the RF classifier ($7$ out of $20$), but this limitation might be a consequence of a particular incapacity of the RF classifier in the synthetic samples, since the SVM classifier  (and the SOM maps) performed better. The rendering algorithm should be refined and more tests are needed to obtain lower error rates for this classifier.
 
@@ -559,9 +569,9 @@ To the best of the authors' knowledge, this is the first attempt in computer gra
 
 We proposed and validated a flexible and powerful pipeline to procedurally model bread crumbs. This is a contribution to the state of the art since typical approaches for modeling the geometry of bread crumbs involve advanced tomography equipment \cite{VanDyck2014} or artistical considerations \cite{Cho2007}. The images we obtained and the tests we performed  suggests the correctness of the model, suitable for application in $3D$ engines, serious games and photo-realistic rendering.
 
-Artists can model the bread crumb global shape using control points in a plane. Bubbles naturally follow this shape, accurately emulating bread crumb bubbles.
+Artists can model the bread crumb global shape using control points in a plane and the bubbles will naturally follow this shape.
 
-We employed fractal and machine learning methods to model and validate our procedure. The low error rates we obtained make us beleive that the bubbles' size distribution is accurate in a (multi) fractal sense: the number, sizes and shape of the bubbles concordate with real bread crumbs. Also, since we mathematically emulated key steps in bread making, we obtained natural shapes for bubbles that adapt to the bread exterior silhouette, producing mathematically correct patterns.
+We employed fractal techniques to model and validate our procedure. The low error rates we obtained make us beleive that the bubbles' size distribution is accurate in a (multi) fractal sense: the number, sizes and shape of the bubbles concordate with real bread crumbs. Also, since we mathematically emulated key steps in bread making, we obtained natural shapes for bubbles that adapt to the bread exterior silhouette, producing mathematically correct patterns.
 
 As possible continuations, we will define interfaces for visual interaction with the control points, and a complete $3D$ model for deformation. We may extend the proving method introducing spheres that self avoids. We plan to perform further tests on our classification procedure to gain insight in multi-fractal bread features.
 
